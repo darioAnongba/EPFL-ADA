@@ -3,19 +3,19 @@
 # Abstract
 > *"A healthy lifestyle, excluding any damaging influences, defines the positive and voluntary measures a person can implement to maintain good mental and physical health. This includes healthy habits in terms of diet, treatment of the body, sex, and the environment"*, http://health.ccm.net 
 
-The idea of the project is to asses whether the population of western countries are adopting a healthier lifestyle. This project aims to determine if this adoption is a trend or a long-term social change. In either cases, we will try to predict the evolution of this behavior over the upcoming years.
+The idea of the project is to assess whether the population of western countries is adopting a healthier lifestyle. This project aims to determine if this adoption is a trend or a long-term social change. In either cases, we will try to predict the evolution of this behavior over the upcoming years.
 
 In order to achieve that goal, we will use the Amazon reviews dataset. From those reviews, we can extract information about consumer satisfaction, dates, product categories and the enthousiasm for certain products.
 
-With the emergence of new institutions promoting healthy lives (like vegan shops or fitness centers), finding insights and patterns in people's behavior could be useful to define in which direction this social change is heading.
+With the emergence of new institutions promoting healthy lifes (like vegan shops or fitness centers), finding insights and patterns in people's behavior could be useful to define in which direction this social change is heading.
 
 # Research questions
 * Study the evolution of the enthousiasm for healthy products over time.
-* Study the correlation between amazon reviews and trends (using Google Trends).
+* Study the correlation between Amazon reviews and trends (using Google Trends).
 * Study the price evolution of healthy products.
-* Determine of the "hype" factor of healthy product categories.
+* Determine the "hype" factor of healthy product categories.
 * Forecast the "hype" factor over the upcoming years by categories in order to predict new trends or define decaying ones.
-* Correlate the price and the hype factor.
+* Correlate the price and the "hype" factor.
 
 # Dataset
 * Amazon reviews (Sports and Outdoors, Health and Personal Care, Grocery and Gourmet Food)
@@ -39,7 +39,7 @@ Finally, we will then be able to enrich the data by doing sentiment analysis on 
 |Week 2| Come up with a clever way of defining the "hype" factor and the sentiment analysis labeling (by either using a platform like Google Machine learning API or by creating our own neural network model).
 |Week 3 - 4| Answer the research questions defined before. Assigning the "hype" factor to cateories of products and forecasting it over the upcoming years.
 
-# Questions for TAa
+# Questions for TAs
 * Should we use an additional dataset in order to determine what products should be classified as "healthy" ?
 * Is the sentiment analysis a good idea or is using ratings enough to determine if a product is successful ?
 * If yes, which labels should we use ? Is "positive, neutral, negative" enough ?
