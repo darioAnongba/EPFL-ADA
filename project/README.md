@@ -21,6 +21,10 @@ With the emergence of new institutions promoting healthy lives (like vegan shops
 * Amazon reviews (Sports and Outdoors, Health and Personal Care, Grocery and Gourmet Food)
 * Google Trends API
 
+Here is an example of how the "vegan" keyword is an actual trend and the predictions for that keyword in the future (by Google analytics) from 2012 to 2017:
+
+![Interest evolution for the "vegan" keyword](vegan_trend.png)
+
 ##### Amazon reviews
 First of all, we will create a MongoDB (NoSQL) database in order to store all the useful information. This database is needed to be able to query efficiently the data without having to do it manually (using pandas dataframes). Initially, the database will contain 2 collections of documents, Reviews, Products. The data being in non-strict JSON format, we will have to parse it into strict JSON before inserting it into database.
 
