@@ -1,0 +1,55 @@
+Canton,Nationalité,Mois,Janvier 2017,Février 2017,Mars 2017,Avril 2017,Mai 2017,Juin 2017,Juillet 2017,Août 2017,Septembre 2017,Total
+ , ,Mesures,Taux de chômage,Taux de chômage,Taux de chômage,Taux de chômage,Taux de chômage,Taux de chômage,Taux de chômage,Taux de chômage,Taux de chômage,Taux de chômage
+Zurich,Etrangers,,6.6,6.5,6.3,6,5.7,5.6,5.5,5.3,5.3,5.9
+Zurich,Suisses,,2.9,2.8,2.8,2.7,2.6,2.6,2.6,2.6,2.5,2.7
+Berne,Etrangers,,7.5,7.4,7.1,6.8,6.2,5.7,5.5,5.5,5.5,6.4
+Berne,Suisses,,2.2,2.1,2.1,2,1.9,1.8,1.8,1.9,1.8,2
+Lucerne,Etrangers,,5.4,5.1,4.8,4.6,4.3,4.1,3.9,3.9,3.9,4.5
+Lucerne,Suisses,,1.5,1.5,1.4,1.3,1.3,1.2,1.3,1.3,1.3,1.3
+Uri,Etrangers,,6.9,6.4,5.8,5.3,4.1,3,2.7,2.2,2.1,4.3
+Uri,Suisses,,0.7,0.7,0.6,0.6,0.6,0.5,0.4,0.4,0.4,0.5
+Schwyz,Etrangers,,4.6,4.5,4.3,4,3.6,3.5,3.5,3.5,3.4,3.9
+Schwyz,Suisses,,1.4,1.4,1.3,1.2,1.2,1.1,1.2,1.2,1.2,1.2
+Obwald,Etrangers,,3.3,3.3,3,3,2.4,2.4,2.5,2,2.2,2.7
+Obwald,Suisses,,0.6,0.7,0.7,0.6,0.5,0.5,0.5,0.6,0.5,0.6
+Nidwald,Etrangers,,4.1,4,4.1,3.6,3.5,3.2,3,3,2.9,3.5
+Nidwald,Suisses,,0.8,0.8,0.8,0.7,0.7,0.7,0.7,0.7,0.7,0.7
+Glaris,Etrangers,,5.3,5.3,5.1,4.6,4.3,3.9,3.6,3.8,3.4,4.4
+Glaris,Suisses,,1.7,1.7,1.6,1.6,1.5,1.4,1.3,1.4,1.4,1.5
+Zoug,Etrangers,,4.5,4.5,4.4,4.3,4.2,4,4,3.9,3.9,4.2
+Zoug,Suisses,,1.9,1.9,1.9,1.8,1.8,1.7,1.7,1.8,1.7,1.8
+Fribourg,Etrangers,,7.2,6.4,5.7,5.3,4.7,4.4,4.8,5.3,5,5.4
+Fribourg,Suisses,,2,1.9,1.9,1.9,1.7,1.8,2,2.1,2,1.9
+Soleure,Etrangers,,6.9,6.7,6.3,6,5.8,5.4,5.2,5.2,5,5.8
+Soleure,Suisses,,2.3,2.2,2.1,2.1,2,1.9,2,2,1.9,2.1
+Bâle-Ville,Etrangers,,6,5.9,5.6,5.3,5,5,4.8,4.8,4.6,5.2
+Bâle-Ville,Suisses,,3.1,3,3,3,2.8,2.7,2.7,2.9,2.8,2.9
+Bâle-Campagne,Etrangers,,5.8,5.8,5.7,5.3,5.1,5,4.8,4.8,4.8,5.2
+Bâle-Campagne,Suisses,,2.4,2.4,2.3,2.2,2.2,2.2,2.2,2.2,2.2,2.3
+Schaffhouse,Etrangers,,7,6.8,6.3,5.9,5.9,5.5,5.3,5.2,5.1,5.9
+Schaffhouse,Suisses,,2.4,2.5,2.5,2.3,2.4,2.3,2.2,2.2,2.2,2.3
+Appenzell Rhodes-Extérieures,Etrangers,,4.4,4.2,3.8,3.9,3.7,3.6,3.8,3.4,3.4,3.8
+Appenzell Rhodes-Extérieures,Suisses,,1.5,1.5,1.4,1.3,1.3,1.3,1.4,1.3,1.4,1.4
+Appenzell Rhodes-Intérieures,Etrangers,,6.1,5.1,4.3,2.8,2.5,2.5,2.1,2.2,2,3.3
+Appenzell Rhodes-Intérieures,Suisses,,0.7,0.7,0.6,0.7,0.5,0.6,0.6,0.5,0.5,0.6
+St-Gall,Etrangers,,5.7,5.5,5.2,4.9,4.6,4.4,4.4,4.5,4.3,4.8
+St-Gall,Suisses,,1.8,1.7,1.7,1.6,1.5,1.5,1.5,1.6,1.5,1.6
+Grisons,Etrangers,,5.5,4.8,4.2,6.1,5.2,2.6,2.1,1.9,2.3,3.9
+Grisons,Suisses,,1,0.9,0.8,1,0.9,0.8,0.7,0.7,0.7,0.8
+Argovie,Etrangers,,7.1,7,6.7,6.4,6.1,5.9,5.6,5.7,5.6,6.2
+Argovie,Suisses,,2.3,2.3,2.2,2.2,2.1,2.1,2.1,2.1,2.1,2.2
+Thurgovie,Etrangers,,5.4,5.4,5.1,4.5,4.2,4,4.1,4,3.9,4.5
+Thurgovie,Suisses,,1.7,1.7,1.6,1.5,1.5,1.4,1.4,1.5,1.4,1.5
+Tessin,Etrangers,,6.5,6.4,5.7,5,4.7,4.5,4.4,4.5,4.6,5.1
+Tessin,Suisses,,2.9,2.9,2.7,2.6,2.5,2.4,2.4,2.5,2.5,2.6
+Vaud,Etrangers,,7.7,7.4,7,6.6,6.3,5.8,5.8,5.9,5.9,6.5
+Vaud,Suisses,,3.8,3.7,3.6,3.5,3.4,3.4,3.5,3.6,3.5,3.6
+Valais,Etrangers,,12.2,10.5,8.3,7.7,6.3,5.2,5,5.1,4.9,7.3
+Valais,Suisses,,2.8,2.7,2.4,2.3,2.3,2.1,2.2,2.2,2.1,2.3
+Neuchâtel,Etrangers,,10.7,10.5,9.8,9,8.4,7.6,7.6,7.5,7.4,8.7
+Neuchâtel,Suisses,,4.9,4.9,4.7,4.6,4.4,4.2,4.3,4.3,4.2,4.5
+Genève,Etrangers,,6.5,6.4,6.2,6,5.9,5.8,5.7,5.7,5.7,6
+Genève,Suisses,,5,4.8,4.8,4.7,4.6,4.6,4.7,4.8,4.8,4.8
+Jura,Etrangers,,11.9,11.5,10.7,10,9.5,9.4,9.5,9.5,9,10.1
+Jura,Suisses,,4.1,4.1,3.8,3.7,3.5,3.4,3.4,3.8,3.6,3.7
+Total,,,3.7,3.6,3.4,3.3,3.1,3,3,3,3,3.2
