@@ -1,0 +1,29 @@
+Région linguistique,Canton,Mois,Septembre 2017,Septembre 2017,Septembre 2017,Septembre 2017,Total,Total,Total,Total
+ , ,Mesures,Taux de chômage,Chômeurs inscrits,Demandeurs d'emploi,Demandeurs d'emploi non chômeurs,Taux de chômage,Chômeurs inscrits,Demandeurs d'emploi,Demandeurs d'emploi non chômeurs
+Suisse alémanique,Zurich,,3.3,27'225,34'156,6'931,3.3,27'225,34'156,6'931
+Suisse alémanique,Berne,,2.4,13'658,18'385,4'727,2.4,13'658,18'385,4'727
+Suisse alémanique,Lucerne,,1.7,3'885,6'756,2'871,1.7,3'885,6'756,2'871
+Suisse alémanique,Uri,,0.6,112,257,145,0.6,112,257,145
+Suisse alémanique,Schwyz,,1.7,1'455,2'229,774,1.7,1'455,2'229,774
+Suisse alémanique,Obwald,,0.7,153,319,166,0.7,153,319,166
+Suisse alémanique,Nidwald,,1,248,436,188,1,248,436,188
+Suisse alémanique,Glaris,,1.8,416,713,297,1.8,416,713,297
+Suisse alémanique,Zoug,,2.3,1'543,2'615,1'072,2.3,1'543,2'615,1'072
+Suisse alémanique,Soleure,,2.6,3'801,6'628,2'827,2.6,3'801,6'628,2'827
+Suisse alémanique,Bâle-Ville,,3.5,3'455,5'168,1'713,3.5,3'455,5'168,1'713
+Suisse alémanique,Bâle-Campagne,,2.8,4'082,5'540,1'458,2.8,4'082,5'540,1'458
+Suisse alémanique,Schaffhouse,,3,1'286,2'328,1'042,3,1'286,2'328,1'042
+Suisse alémanique,Appenzell Rhodes-Extérieures,,1.7,523,866,343,1.7,523,866,343
+Suisse alémanique,Appenzell Rhodes-Intérieures,,0.7,62,102,40,0.7,62,102,40
+Suisse alémanique,St-Gall,,2.2,6'127,10'363,4'236,2.2,6'127,10'363,4'236
+Suisse alémanique,Grisons,,1.1,1'166,2'590,1'424,1.1,1'166,2'590,1'424
+Suisse alémanique,Argovie,,2.9,10'684,15'145,4'461,2.9,10'684,15'145,4'461
+Suisse alémanique,Thurgovie,,2,3'058,5'618,2'560,2,3'058,5'618,2'560
+Suisse romande et Tessin,Fribourg,,2.7,4'466,7'837,3'371,2.7,4'466,7'837,3'371
+Suisse romande et Tessin,Tessin,,3.1,5'202,8'675,3'473,3.1,5'202,8'675,3'473
+Suisse romande et Tessin,Vaud,,4.3,17'155,24'649,7'494,4.3,17'155,24'649,7'494
+Suisse romande et Tessin,Valais,,2.8,4'816,8'027,3'211,2.8,4'816,8'027,3'211
+Suisse romande et Tessin,Neuchâtel,,5.1,4'738,6'350,1'612,5.1,4'738,6'350,1'612
+Suisse romande et Tessin,Genève,,5.2,12'234,15'497,3'263,5.2,12'234,15'497,3'263
+Suisse romande et Tessin,Jura,,4.4,1'619,2'375,756,4.4,1'619,2'375,756
+Total,,,3,133'169,193'624,60'455,3,133'169,193'624,60'455
