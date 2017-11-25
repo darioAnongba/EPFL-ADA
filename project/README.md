@@ -11,7 +11,6 @@ With the emergence of new institutions promoting healthy lifes (like vegan shops
 
 # Research questions
 * Study the evolution of the enthousiasm for healthy products over time.
-* Study the correlation between Amazon reviews and trends (using Google Trends).
 * Study the price evolution of healthy products.
 * Determine the "hype" factor of healthy product categories.
 * Forecast the "hype" factor over the upcoming years by categories in order to predict new trends or define decaying ones.
@@ -19,29 +18,21 @@ With the emergence of new institutions promoting healthy lifes (like vegan shops
 
 # Dataset
 * Amazon reviews (Sports and Outdoors, Health and Personal Care, Grocery and Gourmet Food)
-* Google Trends API
 
 Here is an example of how the "vegan" keyword is an actual trend and the predictions for that keyword in the future (by Google analytics) from 2012 to 2017:
 
 ![Interest evolution for the "vegan" keyword](vegan_trend.png)
 
 ##### Amazon reviews
-First of all, we will create a MongoDB (NoSQL) database in order to store all the useful information. This database is needed to be able to query efficiently the data without having to do it manually (using pandas dataframes). Initially, the database will contain 2 collections of documents, Reviews, Products. The data being in non-strict JSON format, we will have to parse it into strict JSON before inserting it into database.
+First of all, we will load the data into Pandas dataframes. The data being in non-strict JSON format, we will have to parse it into strict JSON.
 
 Then, we will process the data to filter out all non-healthy related reviews and products (because of the huge size of the dataset).
 
-Finally, we will then be able to enrich the data by doing sentiment analysis on reviews (using Deep Learning) in order to determine if a product or a category of products is becoming more or less popular by assigning labels(positive, neutral, negative).
+Finally, in order to determine if a product or a category of products is becoming more or less popular, we will compute several metrics and plot them in order to find correlations between other products that either have been decaying in reviews (and thus sales) or on contrary, that have been growing in popularity.
 
 # A list of internal milestones up until project milestone 2
 |Week|Expected task|
 |---|---|
-|Week 1| Setup the server with a MongoDB instance and a NodeJS server, retrieve the data, filter it and insert it into the database
-|Week 2| Come up with a clever way of defining the "hype" factor and the sentiment analysis labeling (by either using a platform like Google Machine learning API or by creating our own neural network model).
-|Week 3 - 4| Answer the research questions defined before. Assigning the "hype" factor to cateories of products and forecasting it over the upcoming years.
-
-# Questions for TAs
-* Should we use an additional dataset in order to determine what products should be classified as "healthy" ?
-* Is the sentiment analysis a good idea or is using ratings enough to determine if a product is successful ?
-* If yes, which labels should we use ? Is "positive, neutral, negative" enough ?
-* Any advice about how we could enrich our dataset with information than just the sentiment analysis label ?
-* What time range would be suitable ? +- 5 years ? 10 years ?
+|Week 1| Setup the raw data by downloading and reading the data into pandas dataframes.
+|Week 2| Filter the data to keep only healthy products. Also compute the growth of Amazon in general to avoid biases in the results.
+|Week 3 - 4| Write the report showing the data collection pipeline and the descriptive analysis.
