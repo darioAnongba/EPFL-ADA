@@ -30,9 +30,17 @@ Then, we will process the data to filter out all non-healthy related reviews and
 
 Finally, in order to determine if a product or a category of products is becoming more or less popular, we will compute several metrics and plot them in order to find correlations between other products that either have been decaying in reviews (and thus sales) or on contrary, that have been growing in popularity.
 
-# A list of internal milestones up until project milestone 2
+## Plan for milestone 2
 |Week|Expected task|
 |---|---|
 |Week 1| Setup the raw data by downloading and reading the data into pandas dataframes.
 |Week 2| Filter the data to keep only healthy products. Also compute the growth of Amazon in general to avoid biases in the results.
 |Week 3 - 4| Write the report showing the data collection pipeline and the descriptive analysis.
+
+## Plan for milestone 3
+
+|Week|Expected task|
+|---|---|
+|Week 1 and 2| Computing and plotting all the metrics defined in the mathematicals details section of our report.
+|Week 3| Writing the report while analyzing the results and trying to come up with responses to the initial research questions.
+
