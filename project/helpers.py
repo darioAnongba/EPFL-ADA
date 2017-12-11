@@ -42,6 +42,7 @@ def truncate_date_df(df, col_name='datetime', from_date='2003-01-01', to_date='2
 
 
 REVIEWS_DATE_FORMAT = "%m %d, %Y"
+MONT_DATE_FORMAT = '%Y-%m'
 REVIEWS_GROWTH = 'reviews_count_df'
 USER_COUNT = 'users_count_df'
 
@@ -55,12 +56,14 @@ def getDate(item):
     except KeyError:
         return datetime.datetime.strptime(item['reviewTime'], REVIEWS_DATE_FORMAT)
 
+def convert_Date_To_Month(date):
+    return datetime.datetime.strptime(date.strftime(MONT_DATE_FORMAT), MONT_DATE_FORMAT)
 
 def MonthYearToDate(date_str):
     '''
     Convert a string date of the form "2016-02" to datetime
     '''
-    return datetime.datetime.strptime(date_str, "%Y-%m")
+    return datetime.datetime.strptime(date_str, MONT_DATE_FORMAT)
 
 
 def count_review(acc, file_path):
@@ -235,13 +238,13 @@ def update_procut_acc(acc, file_path):
     if skiped:
         print('skipped {} rows because of KeyError (not present) or ValueError (not parsable)'.format(skiped))
 
-
-def load_products_lauch(filename, truncate=False):
+PRODUCTS_FILE = 'products_lauch_df'
+def load_products_lauch():
     '''
     Load a DataFrame of the products lauch date
     '''
     # Check if the file was already computed
-    if not os.path.isfile(DATA_DIR + filename):
+    if not os.path.isfile(DATA_DIR + PRODUCTS_FILE):
         print('Computing file...')
         acc = {}
 
@@ -263,26 +266,60 @@ def load_products_lauch(filename, truncate=False):
         # Convert to DataFrame
         df = pd.DataFrame(list(acc.items()), columns=['asin', 'Date']).sort_values('Date')
         # Truncate to take only relevant time frame
-        if truncate:
-            df = truncate_date_df(df, col_name='Date',
-                                  from_date='2003-01-01', to_date='2014-07-01')
+        df = truncate_date_df(df, col_name='Date',
+                                from_date='2003-01-01', to_date='2014-07-01')
 
-        df.to_pickle(DATA_DIR + filename)
+        df.to_pickle(DATA_DIR + PRODUCTS_FILE)
     else:
         # Load DataFrame from file
-        print('Loading from file...')
-        df = pd.read_pickle(DATA_DIR + filename)
+        print('Loading {} from file...'.format(PRODUCTS_FILE))
+        df = pd.read_pickle(DATA_DIR + PRODUCTS_FILE)
         # Truncate if needed
-        if truncate:
-            df = df.reset_index()
-            df = truncate_date_df(df, col_name='Date',
-                                  from_date='2003-01-01', to_date='2014-07-01')
+        df = df.reset_index()
+        df = truncate_date_df(df, col_name='Date',
+                                from_date='2003-01-01', to_date='2014-07-01').drop('index', axis=1)
+        df.columns = ['new_products', 'Date']
     return df
 
 
 def add_lauch_date(lauch_dic, products_df):
     ''' Add a column with the lauch date of the products to a DataFrame '''
-    values = lauch_dic[lauch_dic.asin.isin(products_df.asin)].set_index('asin')
+    values = lauch_dic[lauch_dic.new_products.isin(products_df.asin)].set_index('new_products')['Date']
     products_df = products_df.set_index('asin')
     products_df['Lauched'] =  values
     return products_df.reset_index()
+
+FOOD_LAUCH = 'food_lauch_df'
+SPORT_LAUCH = 'sport_lauch_df'
+
+def load_df_lauch(product_df, filename):
+    if not os.path.isfile(DATA_DIR + filename):
+        # Get the lauch date of all products
+        products_lauch = load_products_lauch()
+        df = add_lauch_date(products_lauch, product_df)
+        df.to_pickle(DATA_DIR + filename)
+    else:
+        print('Loading {} from file...'.format(filename))
+        df = pd.read_pickle(DATA_DIR + filename)
+    return df
+
+def load_sport_lauch(sport_df):
+    return load_df_lauch(sport_df, SPORT_LAUCH)
+
+def load_food_lauch(food_df):
+    return load_df_lauch(food_df, FOOD_LAUCH)
+
+
+PRODUCTS_COUNT = 'products_count_df'
+
+def load_products_count():
+    if not os.path.isfile(DATA_DIR + PRODUCTS_COUNT):
+        products_lauch = load_products_lauch()
+        products_lauch.Date = products_lauch.Date.apply(convert_Date_To_Month)
+        df = products_lauch.groupby('Date').count()
+        df['Total'] = df.new_products.cumsum()
+        df.to_pickle(DATA_DIR + PRODUCTS_COUNT)
+    else:
+        print('Loading {} from file...'.format(PRODUCTS_COUNT))
+        df = pd.read_pickle(DATA_DIR + PRODUCTS_COUNT)
+    return df

@@ -2,3 +2,4 @@
 project/data
 project/output
 project/__pycache__
+project/.vscode/
