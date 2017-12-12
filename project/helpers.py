@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sb
 from tqdm import tqdm_notebook as tqdm
+import matplotlib.pyplot as plt
 DATA_DIR = 'data/'
 
 ##### Functions related to the DataFrames directly #####
@@ -111,27 +112,26 @@ def loadCountData(filename, columns, count_func, extra_handling, truncate=False)
         if truncate:
             df = truncate_date_df(df, col_name='Date',
                                   from_date='2003-01-01', to_date='2014-07-01')
+        df = df.groupby([df.Date.dt.year, df.Date.dt.month]).count()
         # Special operation
         if extra_handling == 'Reviews':
-            # Convert Date to datetime and set it to index
-            df.Date = df.Date.map(MonthYearToDate)
-            df = df.set_index('Date')
+            pass
         elif extra_handling == 'Users':
-            # Count the number of new users by month
-            df = df.groupby('Date').count()
-            # Create cumulative sum
             df['Total'] = df.NewUsers.cumsum()
         df.to_pickle(DATA_DIR + filename)
     else:
         # Load DataFrame from file
         print('Loading from file...')
         df = pd.read_pickle(DATA_DIR + filename)
+        df = df.reset_index()
         # Truncate if needed
         if truncate:
-            df = df.reset_index()
             df = truncate_date_df(df, col_name='Date',
                                   from_date='2003-01-01', to_date='2014-07-01')
-            df = df.set_index('Date')
+        if extra_handling == 'Users':
+            df.Date = df.Date.apply(MonthYearToDate)
+        df = df.rename(columns={'Reviews' : 'Total'})
+        df = df.groupby([df.Date.dt.year, df.Date.dt.month]).sum()
     return df
 
 
@@ -322,4 +322,21 @@ def load_products_count():
     else:
         print('Loading {} from file...'.format(PRODUCTS_COUNT))
         df = pd.read_pickle(DATA_DIR + PRODUCTS_COUNT)
+        df = df.reset_index()
+        df = df.groupby([df.Date.dt.year, df.Date.dt.month]).sum()
     return df
+
+
+def get_trend(reviews_df, column, reviewers_df, products_df, from_year = 2003):
+    trend_df = reviews_df[[column]].copy()
+    trend_df[column] = trend_df[column] / products_df.Total / reviewers_df.Total
+
+    # Resetting index
+    trend_df = trend_df.reset_index(0)
+    trend_df.columns = ['year', column]
+    trend_df = trend_df.reset_index()
+    trend_df.columns = ['month', 'year', column]
+
+    # Truncate
+    trend_df = trend_df[trend_df.year > from_year].set_index(['year', 'month'])
+    return trend_df
