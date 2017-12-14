@@ -10,11 +10,9 @@ In order to achieve that goal, we will use the Amazon reviews dataset. From thos
 With the emergence of new institutions promoting healthy lifes (like vegan shops or fitness centers), finding insights and patterns in people's behavior could be useful to define in which direction this social change is heading.
 
 # Research questions
-* Study the evolution of the enthousiasm for healthy products over time.
-* Study the price evolution of healthy products.
+* Study the evolution of the enthusiasm for healthy products over time.
 * Determine the "hype" factor of healthy product categories.
-* Forecast the "hype" factor over the upcoming years by categories in order to predict new trends or define decaying ones.
-* Correlate the price and the "hype" factor.
+* Study the tendency of people to review healthy produts compared to general products
 
 # Dataset
 * Amazon reviews (Sports and Outdoors, Health and Personal Care, Grocery and Gourmet Food)
@@ -28,7 +26,7 @@ First of all, we will load the data into Pandas dataframes. The data being in no
 
 Then, we will process the data to filter out all non-healthy related reviews and products (because of the huge size of the dataset).
 
-Finally, in order to determine if a product or a category of products is becoming more or less popular, we will compute several metrics and plot them in order to find correlations between other products that either have been decaying in reviews (and thus sales) or on contrary, that have been growing in popularity.
+Finally, in order to determine if a product or a category of products is becoming more or less popular, we will compare the number of reviews of active users that have reviewed healthy products compared to those that have reviewed products globally (in the Sports and Outdoors and Grocery and Gourmet Food)
 
 ## Plan for milestone 2
 |Week|Expected task|
