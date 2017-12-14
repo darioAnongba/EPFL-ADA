@@ -140,8 +140,10 @@ def loadCountData(filename, count_func, get_item=None, extra_handling=None, trun
         df = pd.read_pickle(DATA_DIR + filename)
     # Truncate to take only relevant time frame
     if truncate:
-        df = df.loc[(df.index.get_level_values('Year') > 2003) &
-                    (df.index.get_level_values('Year') < 2014)]
+        df = df.loc[(df.index.get_level_values('Year') >= 2003) &
+                    ( (df.index.get_level_values('Year') < 2014) |
+                    ((df.index.get_level_values('Year') == 2014) & (df.index.get_level_values('Month') < 7))
+                    )]
 
     return df
 
@@ -232,5 +234,25 @@ def get_trend(reviews_df, column, reviewers_df, products_df, category='trend', f
     trend_df.columns = ['month', 'year', column]
 
     # Truncate
-    trend_df = trend_df[trend_df.year > from_year].set_index(['year', 'month']).rename(columns = {column: category})
+    trend_df = trend_df[trend_df.year >= from_year].set_index(['year', 'month']).rename(columns = {column: category})
     return trend_df
+
+def get_products_stat(reviews_df, meta_df):
+    products_count = meta_df.groupby([meta_df.datetime.dt.year,
+                            meta_df.datetime.dt.month])[['asin']].nunique()
+    products_count = products_count.rename(columns= {'asin' : 'New'})
+    products_count['Total'] = products_count.New.cumsum()
+    products_count = add_active(products_count, reviews_df, 'asin')
+    return products_count
+
+def get_reviewers_stat(reviews_df):
+    reviewers_count = reviews_df[['reviewerID','datetime']]
+    reviewers_count = reviewers_count.sort_values('datetime')
+    reviewers_count = reviewers_count.groupby('reviewerID').first().reset_index()
+    reviewers_count = reviewers_count.groupby([reviewers_count.datetime.dt.year,
+                           reviewers_count.datetime.dt.month]).count()[['reviewerID']]
+
+    reviewers_count = reviewers_count.rename(columns = {'reviewerID': 'New'})
+    reviewers_count['Total'] = reviewers_count.New.cumsum()
+    reviewers_count = add_active(reviewers_count, reviews_df, 'reviewerID')
+    return reviewers_count
