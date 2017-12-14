@@ -224,7 +224,7 @@ def add_launch(item_df, reviews_df):
 
 def get_trend(reviews_df, column, reviewers_df, products_df, category='trend', from_year=2003):
     trend_df = reviews_df[[column]].copy()
-    trend_df[column] = trend_df[column] /  reviewers_df.Active
+    trend_df[column] = trend_df[column] /  products_df.Active
 
     # Resetting index
     trend_df = trend_df.reset_index(0)
@@ -255,3 +255,8 @@ def get_reviewers_stat(reviews_df):
     reviewers_count['Total'] = reviewers_count.New.cumsum()
     reviewers_count = add_active(reviewers_count, reviews_df, 'reviewerID')
     return reviewers_count
+
+def get_reviews_stat(reviews_df):
+    reviews_df = reviews_df.groupby([reviews_df.datetime.dt.year,
+                                               reviews_df.datetime.dt.month]).count()
+    return reviews_df
