@@ -67,7 +67,7 @@ def MonthYearToDate(date_str):
     return datetime.datetime.strptime(date_str, MONT_DATE_FORMAT)
 
 
-def count_review(acc, file_path):
+def count_review(file_path, acc, *args):
     '''
     Count the number of reviews in a given file and increase the counts in an accumulator
     '''
@@ -76,10 +76,10 @@ def count_review(acc, file_path):
     for l in g:
         row = eval(l)
         try:
-            date_key = getDate(row).strftime('%Y-%m')
+            date_key = MonthYearToDate(getDate(row).strftime('%Y-%m'))
         except (KeyError, ValueError) as e:
             #print('row is : {}'.format(row))
-            skiped += 1
+            skipped += 1
             continue
         if date_key in acc:
             acc[date_key] += 1
@@ -89,49 +89,53 @@ def count_review(acc, file_path):
         print('skipped {} rows because of KeyError (not present) or ValueError (not parsable)'.format(skipped))
 
 
-def loadCountData(filename, columns, count_func, extra_handling, truncate=False):
+def loadCountData(filename, count_func, get_item=None, extra_handling=None, truncate=True):
     '''
     Load a DataFrame of the count of reviews/users
     '''
     # Check if the file was already computed
     if not os.path.isfile(DATA_DIR + filename):
         print('Computing file...')
-        acc = {}
+        acc_new = {}
+        acc_active = {}
         # Iterate over the files
         logs= tqdm(os.listdir(DATA_DIR))
         for file in logs:
             logs.set_description(file)
             # Only take reviews files
             if (file.startswith('reviews') and file.endswith('.json.gz')):
-                count_func(acc, DATA_DIR + file)
+                count_func(DATA_DIR + file, acc_new, acc_active, get_item)
 
-        # Convert to DataFrame
-        df = pd.DataFrame(list(acc.items()),
-                          columns=columns).sort_values('Date')
-        # Truncate to take only relevant time frame
-        if truncate:
-            df = truncate_date_df(df, col_name='Date',
-                                  from_date='2003-01-01', to_date='2014-07-01')
-        df = df.groupby([df.Date.dt.year, df.Date.dt.month]).count()
-        # Special operation
+
+        # Special operation to create Dataframe
         if extra_handling == 'Reviews':
-            pass
-        elif extra_handling == 'Users':
-            df['Total'] = df.NewUsers.cumsum()
+            # Convert to DataFrame
+            df = pd.DataFrame(list(acc_new.items()),
+                          columns=['datetime', 'New'])
+            # Use datetime as index
+            df = df.groupby([df.datetime.dt.year, df.datetime.dt.month]).sum()
+        elif extra_handling in ['Users', 'Products'] :
+            new_df = pd.DataFrame(list(acc_new.items()), columns= ['New', 'datetime'])
+            # Map list to count
+            acc_active = {k: len(v) for k, v in acc_active.items()}
+            active_df = pd.DataFrame(list(acc_active.items()), columns=['datetime', 'Active'])
+
+            new_df      = new_df.groupby([new_df.datetime.dt.year, new_df.datetime.dt.month]).count()
+            active_df   = active_df.groupby([active_df.datetime.dt.year, active_df.datetime.dt.month]).sum()
+            df = new_df.join(active_df, how='outer').drop('datetime', axis=1)
+
+        df.index.names = ['Year','Month']
+        df['Total'] = df.New.cumsum()
+        df = df.fillna(0)
         df.to_pickle(DATA_DIR + filename)
     else:
         # Load DataFrame from file
         print('Loading from file...')
         df = pd.read_pickle(DATA_DIR + filename)
-        df = df.reset_index()
-        # Truncate if needed
-        if truncate:
-            df = truncate_date_df(df, col_name='Date',
-                                  from_date='2003-01-01', to_date='2014-07-01')
-        if extra_handling == 'Users':
-            df.Date = df.Date.apply(MonthYearToDate)
-        df = df.rename(columns={'Reviews' : 'Total'})
-        df = df.groupby([df.Date.dt.year, df.Date.dt.month]).sum()
+    # Truncate to take only relevant time frame
+    if truncate:
+        df = df.loc[(df.index.get_level_values('Year') > 2003) & (df.index.get_level_values('Year') < 2014)]
+
     return df
 
 
@@ -146,9 +150,9 @@ def get_user(item):
     return reviewerID
 
 
-def find_users_first_review(acc, file_path):
+def statistics_data(file_path, acc_new, acc_active, get_data):
     '''
-    Find the users first reviews in a given file and update the values in an accumulator
+    Find the statistics about new/active user (or product) in a given file and update the values in an accumulator
     '''
     skiped = 0
     g = gzip.open(file_path, 'rb')
@@ -156,17 +160,24 @@ def find_users_first_review(acc, file_path):
         row = eval(l)
         try:
             # Get ReviewerID
-            user = get_user(row)
-            if user is None:
-                # If no ReviewerID go to next
+            item = get_data(row)
+            if item is None:
+                # If no item go to next
                 continue
-            # Get review's date
-            date_key = getDate(row).strftime('%Y-%m')
-            # Update accumulator
-            if user in acc and acc[user] > date_key:
-                acc[user] = date_key
-            elif user not in acc:
-                acc[user] = date_key
+            # Get item's date
+            date_key = MonthYearToDate(getDate(row).strftime('%Y-%m'))
+            # Update new item's accumulator
+            if item not in acc_new or item in acc_new and acc_new[item] > date_key:
+                acc_new[item] = date_key
+
+            # Update active item's accumulator
+            if date_key not in acc_active:
+                # Create list for the month
+                acc_active[date_key] = set([item])
+            else:
+                # Check user not already active
+                if not item in acc_active[date_key]:
+                    acc_active[date_key].add(item)
 
         except (KeyError, ValueError) as e:
             #print('row is : {}'.format(row))
@@ -286,7 +297,7 @@ def add_lauch_date(lauch_dic, products_df):
     ''' Add a column with the lauch date of the products to a DataFrame '''
     values = lauch_dic[lauch_dic.new_products.isin(products_df.asin)].set_index('new_products')['Date']
     products_df = products_df.set_index('asin')
-    products_df['Lauched'] =  values
+    products_df['datetime'] =  values
     return products_df.reset_index()
 
 FOOD_LAUCH = 'food_lauch_df'
