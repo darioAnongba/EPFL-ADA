@@ -46,6 +46,7 @@ REVIEWS_DATE_FORMAT = "%m %d, %Y"
 MONT_DATE_FORMAT = '%Y-%m'
 REVIEWS_GROWTH = 'reviews_count_df'
 USER_COUNT = 'users_count_df'
+PRODUCTS_COUNT = 'products_count_df'
 
 
 def getDate(item):
@@ -57,8 +58,10 @@ def getDate(item):
     except KeyError:
         return datetime.datetime.strptime(item['reviewTime'], REVIEWS_DATE_FORMAT)
 
+
 def convert_Date_To_Month(date):
     return datetime.datetime.strptime(date.strftime(MONT_DATE_FORMAT), MONT_DATE_FORMAT)
+
 
 def MonthYearToDate(date_str):
     '''
@@ -99,32 +102,35 @@ def loadCountData(filename, count_func, get_item=None, extra_handling=None, trun
         acc_new = {}
         acc_active = {}
         # Iterate over the files
-        logs= tqdm(os.listdir(DATA_DIR))
+        logs = tqdm(os.listdir(DATA_DIR))
         for file in logs:
             logs.set_description(file)
             # Only take reviews files
             if (file.startswith('reviews') and file.endswith('.json.gz')):
                 count_func(DATA_DIR + file, acc_new, acc_active, get_item)
 
-
         # Special operation to create Dataframe
         if extra_handling == 'Reviews':
             # Convert to DataFrame
             df = pd.DataFrame(list(acc_new.items()),
-                          columns=['datetime', 'New'])
+                              columns=['datetime', 'New'])
             # Use datetime as index
             df = df.groupby([df.datetime.dt.year, df.datetime.dt.month]).sum()
-        elif extra_handling in ['Users', 'Products'] :
-            new_df = pd.DataFrame(list(acc_new.items()), columns= ['New', 'datetime'])
+        elif extra_handling in ['Users', 'Products']:
+            new_df = pd.DataFrame(list(acc_new.items()),
+                                  columns=['New', 'datetime'])
             # Map list to count
             acc_active = {k: len(v) for k, v in acc_active.items()}
-            active_df = pd.DataFrame(list(acc_active.items()), columns=['datetime', 'Active'])
+            active_df = pd.DataFrame(list(acc_active.items()), columns=[
+                                     'datetime', 'Active'])
 
-            new_df      = new_df.groupby([new_df.datetime.dt.year, new_df.datetime.dt.month]).count()
-            active_df   = active_df.groupby([active_df.datetime.dt.year, active_df.datetime.dt.month]).sum()
+            new_df = new_df.groupby(
+                [new_df.datetime.dt.year, new_df.datetime.dt.month]).count()
+            active_df = active_df.groupby(
+                [active_df.datetime.dt.year, active_df.datetime.dt.month]).sum()
             df = new_df.join(active_df, how='outer').drop('datetime', axis=1)
 
-        df.index.names = ['Year','Month']
+        df.index.names = ['Year', 'Month']
         df['Total'] = df.New.cumsum()
         df = df.fillna(0)
         df.to_pickle(DATA_DIR + filename)
@@ -134,7 +140,8 @@ def loadCountData(filename, count_func, get_item=None, extra_handling=None, trun
         df = pd.read_pickle(DATA_DIR + filename)
     # Truncate to take only relevant time frame
     if truncate:
-        df = df.loc[(df.index.get_level_values('Year') > 2003) & (df.index.get_level_values('Year') < 2014)]
+        df = df.loc[(df.index.get_level_values('Year') > 2003) &
+                    (df.index.get_level_values('Year') < 2014)]
 
     return df
 
@@ -197,150 +204,26 @@ def get_product(product):
         asin = None
     return asin
 
+def add_active(stat_df, item_df, column_name):
+    item_df = item_df.groupby([item_df.datetime.dt.year, item_df.datetime.dt.month])[column_name].nunique()
+    stat_df['Active'] = item_df
+    return stat_df.dropna()
 
-def get_new_products(acc, file_path):
+def add_launch(item_df, reviews_df):
     '''
-    find the lauch date of all products in a given file and update the values in an accumulator
+    add the launch date to an item Dataframe given its reviews DataFrame
     '''
-    skiped = 0
-    g = gzip.open(file_path, 'rb')
-    for l in g:
-        row = eval(l)
-        try:
-            # Get ReviewerID
-            product = get_product(row)
-            if product is None:
-                # If no ReviewerID go to next
-                continue
-            # Update accumulator
-            if product not in acc:
-                acc[product] = datetime.datetime.today()
-        except (KeyError, ValueError) as e:
-            #print('row is : {}'.format(row))
-            skiped += 1
-            continue
-    if skiped:
-        print('skipped {} rows because of KeyError (not present) or ValueError (not parsable)'.format(skiped))
+    temp_df = reviews_df.copy().sort_values('datetime')
+    temp_df = temp_df.groupby('asin').first()
+    item_df = item_df.set_index('asin')
+    item_df['datetime'] = temp_df.datetime
+    return item_df.reset_index()
 
 
-def update_procut_acc(acc, file_path):
-    '''
-    update the lauch date in acc according to a given reviews file
-    '''
-    skiped = 0
-    g = gzip.open(file_path, 'rb')
-    for l in g:
-        row = eval(l)
-        try:
-            # Get ReviewerID
-            product = get_product(row)
-            if product is None:
-                # If no ReviewerID go to next
-                continue
-            # Get review's date
-            date_key = getDate(row)
-            # Update accumulator
-            if product in acc and acc[product] > date_key:
-                acc[product] = date_key
-        except (KeyError, ValueError) as e:
-            #print('row is : {}'.format(row))
-            skiped += 1
-            continue
-    if skiped:
-        print('skipped {} rows because of KeyError (not present) or ValueError (not parsable)'.format(skiped))
-
-PRODUCTS_FILE = 'products_lauch_df'
-def load_products_lauch():
-    '''
-    Load a DataFrame of the products lauch date
-    '''
-    # Check if the file was already computed
-    if not os.path.isfile(DATA_DIR + PRODUCTS_FILE):
-        print('Computing file...')
-        acc = {}
-
-        # Find all product
-        logs = tqdm(os.listdir(DATA_DIR))
-        for file in logs:
-            logs.set_description(file)
-            # Only take reviews files
-            if (file.startswith('meta') and file.endswith('.json.gz')):
-                get_new_products(acc, DATA_DIR + file)
-
-        # Update the lauch date
-        for file in logs:
-            logs.set_description(file)
-            # Only take reviews files
-            if (file.startswith('reviews') and file.endswith('.json.gz')):
-                update_procut_acc(acc, DATA_DIR + file)
-
-        # Convert to DataFrame
-        df = pd.DataFrame(list(acc.items()), columns=['asin', 'Date']).sort_values('Date')
-        # Truncate to take only relevant time frame
-        df = truncate_date_df(df, col_name='Date',
-                                from_date='2003-01-01', to_date='2014-07-01')
-
-        df.to_pickle(DATA_DIR + PRODUCTS_FILE)
-    else:
-        # Load DataFrame from file
-        print('Loading {} from file...'.format(PRODUCTS_FILE))
-        df = pd.read_pickle(DATA_DIR + PRODUCTS_FILE)
-        # Truncate if needed
-        df = df.reset_index()
-        df = truncate_date_df(df, col_name='Date',
-                                from_date='2003-01-01', to_date='2014-07-01').drop('index', axis=1)
-        df.columns = ['new_products', 'Date']
-    return df
-
-
-def add_lauch_date(lauch_dic, products_df):
-    ''' Add a column with the lauch date of the products to a DataFrame '''
-    values = lauch_dic[lauch_dic.new_products.isin(products_df.asin)].set_index('new_products')['Date']
-    products_df = products_df.set_index('asin')
-    products_df['datetime'] =  values
-    return products_df.reset_index()
-
-FOOD_LAUCH = 'food_lauch_df'
-SPORT_LAUCH = 'sport_lauch_df'
-
-def load_df_lauch(product_df, filename):
-    if not os.path.isfile(DATA_DIR + filename):
-        # Get the lauch date of all products
-        products_lauch = load_products_lauch()
-        df = add_lauch_date(products_lauch, product_df)
-        df.to_pickle(DATA_DIR + filename)
-    else:
-        print('Loading {} from file...'.format(filename))
-        df = pd.read_pickle(DATA_DIR + filename)
-    return df
-
-def load_sport_lauch(sport_df):
-    return load_df_lauch(sport_df, SPORT_LAUCH)
-
-def load_food_lauch(food_df):
-    return load_df_lauch(food_df, FOOD_LAUCH)
-
-
-PRODUCTS_COUNT = 'products_count_df'
-
-def load_products_count():
-    if not os.path.isfile(DATA_DIR + PRODUCTS_COUNT):
-        products_lauch = load_products_lauch()
-        products_lauch.Date = products_lauch.Date.apply(convert_Date_To_Month)
-        df = products_lauch.groupby('Date').count()
-        df['Total'] = df.new_products.cumsum()
-        df.to_pickle(DATA_DIR + PRODUCTS_COUNT)
-    else:
-        print('Loading {} from file...'.format(PRODUCTS_COUNT))
-        df = pd.read_pickle(DATA_DIR + PRODUCTS_COUNT)
-        df = df.reset_index()
-        df = df.groupby([df.Date.dt.year, df.Date.dt.month]).sum()
-    return df
-
-
-def get_trend(reviews_df, column, reviewers_df, products_df, from_year = 2003):
+def get_trend(reviews_df, column, reviewers_df, products_df, category='trend', from_year=2003):
     trend_df = reviews_df[[column]].copy()
-    trend_df[column] = trend_df[column] / products_df.Total / reviewers_df.Total
+    trend_df[column] = trend_df[column] / \
+        products_df.Active / reviewers_df.Active
 
     # Resetting index
     trend_df = trend_df.reset_index(0)
@@ -349,5 +232,5 @@ def get_trend(reviews_df, column, reviewers_df, products_df, from_year = 2003):
     trend_df.columns = ['month', 'year', column]
 
     # Truncate
-    trend_df = trend_df[trend_df.year > from_year].set_index(['year', 'month'])
+    trend_df = trend_df[trend_df.year > from_year].set_index(['year', 'month']).rename(columns = {column: category})
     return trend_df
