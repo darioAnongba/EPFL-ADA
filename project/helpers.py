@@ -4,6 +4,9 @@ import datetime
 import pandas as pd
 import numpy as np
 import seaborn as sb
+from sklearn import linear_model
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
 from tqdm import tqdm_notebook as tqdm
 import matplotlib.pyplot as plt
 DATA_DIR = 'data/'
@@ -258,5 +261,28 @@ def get_reviewers_stat(reviews_df):
 
 def get_reviews_stat(reviews_df):
     reviews_df = reviews_df.groupby([reviews_df.datetime.dt.year,
-                                               reviews_df.datetime.dt.month]).count()
+                                    reviews_df.datetime.dt.month]).count()
     return reviews_df
+
+def get_normalized_date(df):
+    return df['year'] + (df['month'] - df['month'].min()) * (1/12) - df['year'].min()
+
+def get_diff_trend_and_estimation(healthy_trend, overall_trend, healthy_col_name="Healthy", overall_col_name="Overall"):
+    # Rename columns to the same name in both DFs
+    healthy_df = healthy_trend.copy()
+    healthy_df = healthy_df.rename(columns={healthy_col_name: "Total"})
+    overall_df = overall_trend.copy()
+    overall_df = overall_df.rename(columns={overall_col_name: "Total"})
+
+    # Compute the diff
+    diff_df = healthy_df.subtract(overall_df)
+    diff_df = diff_df.rename(columns={"Total": "Diff"})
+    diff_df = diff_df.reset_index().dropna()
+    diff_df['NormalizedDate'] = get_normalized_date(diff_df)
+
+    # Create model with Ridge regression
+    model = make_pipeline(PolynomialFeatures(4), linear_model.Ridge())
+    model.fit(diff_df[['NormalizedDate']].values, diff_df[['Diff']].values.flatten())
+    diff_df['Estimation'] = model.predict(diff_df['NormalizedDate'].values.reshape(-1, 1))
+
+    return diff_df.set_index(['year', 'month'])[['Estimation', 'Diff']]
