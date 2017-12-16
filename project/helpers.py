@@ -2,41 +2,16 @@ import os
 import gzip
 import datetime
 import pandas as pd
-import numpy as np
-import seaborn as sb
 from tqdm import tqdm_notebook as tqdm
-import matplotlib.pyplot as plt
 DATA_DIR = 'data/'
 
 ##### Functions related to the DataFrames directly #####
 
 
-def get_categories(item):
-    for cats in item['categories']:
-        for cat in cats:
-            yield cat
-
-
-def create_categories_count_df(reviews_df, meta_df):
-    merged_df = pd.merge(
-        meta_df[['asin', 'categories']], reviews_df[['asin']], on='asin')
-    categories = {}
-    for idx, item in merged_df.iterrows():
-        for cat in get_categories(item):
-            if cat in categories:
-                categories[cat] += 1
-            else:
-                categories[cat] = 1
-
-    count_series = pd.Series(categories, name='count')
-    count_series.index.name = 'category'
-    count_series.reset_index()
-    count_df = count_series.to_frame().sort_values('count', ascending=False)
-
-    return count_df
-
-
 def truncate_date_df(df, col_name='datetime', from_date='2003-01-01', to_date='2014-07-01'):
+    '''
+    Remove the rows of a Dataframe to keep only the one in a given time frame
+    '''
     return df[(df[col_name] >= from_date) & (df[col_name] < to_date)]
 
 # Functions related to compute some statistics
@@ -49,7 +24,7 @@ USER_COUNT = 'users_count_df'
 PRODUCTS_COUNT = 'products_count_df'
 
 
-def getDate(item):
+def get_date(item):
     '''
     Retrieves the date at what time a given review is done
     '''
@@ -59,11 +34,14 @@ def getDate(item):
         return datetime.datetime.strptime(item['reviewTime'], REVIEWS_DATE_FORMAT)
 
 
-def convert_Date_To_Month(date):
+def convert_date_to_month(date):
+    '''
+    Map a datetime to his month
+    '''
     return datetime.datetime.strptime(date.strftime(MONT_DATE_FORMAT), MONT_DATE_FORMAT)
 
 
-def MonthYearToDate(date_str):
+def month_year_to_date(date_str):
     '''
     Convert a string date of the form "2016-02" to datetime
     '''
@@ -76,10 +54,11 @@ def count_review(file_path, acc, *args):
     '''
     skipped = 0
     g = gzip.open(file_path, 'rb')
+    # iterate over the file
     for l in g:
         row = eval(l)
         try:
-            date_key = MonthYearToDate(getDate(row).strftime('%Y-%m'))
+            date_key = month_year_to_date(get_date(row).strftime('%Y-%m'))
         except (KeyError, ValueError) as e:
             #print('row is : {}'.format(row))
             skipped += 1
@@ -106,7 +85,7 @@ def loadCountData(filename, count_func, get_item=None, extra_handling=None, trun
         for file in logs:
             logs.set_description(file)
             # Only take reviews files
-            if (file.startswith('reviews') and file.endswith('.json.gz')):
+            if file.startswith('reviews') and file.endswith('.json.gz'):
                 count_func(DATA_DIR + file, acc_new, acc_active, get_item)
 
         # Special operation to create Dataframe
@@ -121,8 +100,8 @@ def loadCountData(filename, count_func, get_item=None, extra_handling=None, trun
                                   columns=['New', 'datetime'])
             # Map list to count
             acc_active = {k: len(v) for k, v in acc_active.items()}
-            active_df = pd.DataFrame(list(acc_active.items()), columns=[
-                                     'datetime', 'Active'])
+            active_df = pd.DataFrame(list(acc_active.items()),
+                                     columns=['datetime', 'Active'])
 
             new_df = new_df.groupby(
                 [new_df.datetime.dt.year, new_df.datetime.dt.month]).count()
@@ -141,8 +120,9 @@ def loadCountData(filename, count_func, get_item=None, extra_handling=None, trun
     # Truncate to take only relevant time frame
     if truncate:
         df = df.loc[(df.index.get_level_values('Year') >= 2003) &
-                    ( (df.index.get_level_values('Year') < 2014) |
-                    ((df.index.get_level_values('Year') == 2014) & (df.index.get_level_values('Month') < 7))
+                    ((df.index.get_level_values('Year') < 2014) |
+                     ((df.index.get_level_values('Year') == 2014)
+                      & (df.index.get_level_values('Month') < 7))
                     )]
 
     return df
@@ -153,15 +133,16 @@ def get_user(item):
     Retrieves the ReviewID for a given review
     '''
     try:
-        reviewerID = item['reviewerID']
+        reviewer_id = item['reviewerID']
     except:
-        reviewerID = None
-    return reviewerID
+        reviewer_id = None
+    return reviewer_id
 
 
 def statistics_data(file_path, acc_new, acc_active, get_data):
     '''
-    Find the statistics about new/active user (or product) in a given file and update the values in an accumulator
+    Find the statistics about new/active user (or product) in a given file
+    and update the values in an accumulator
     '''
     skiped = 0
     g = gzip.open(file_path, 'rb')
@@ -174,7 +155,7 @@ def statistics_data(file_path, acc_new, acc_active, get_data):
                 # If no item go to next
                 continue
             # Get item's date
-            date_key = MonthYearToDate(getDate(row).strftime('%Y-%m'))
+            date_key = month_year_to_date(get_date(row).strftime('%Y-%m'))
             # Update new item's accumulator
             if item not in acc_new or item in acc_new and acc_new[item] > date_key:
                 acc_new[item] = date_key
@@ -206,10 +187,18 @@ def get_product(product):
         asin = None
     return asin
 
+
 def add_active(stat_df, item_df, column_name):
-    item_df = item_df.groupby([item_df.datetime.dt.year, item_df.datetime.dt.month])[column_name].nunique()
+    '''
+    add the active count of item to the statistic DataFrame
+    '''
+    # Count the number of different item for a given Year and month
+    item_df = item_df.groupby([item_df.datetime.dt.year, item_df.datetime.dt.month])[
+        column_name].nunique()
+    # Store values
     stat_df['Active'] = item_df
     return stat_df.dropna()
+
 
 def add_launch(item_df, reviews_df):
     '''
@@ -223,8 +212,12 @@ def add_launch(item_df, reviews_df):
 
 
 def get_trend(reviews_df, column, reviewers_df, products_df, category='trend', from_year=2003):
+    '''
+    Compute the trend given statistics of reviews, reviewers and products
+    '''
+    # Compute trend
     trend_df = reviews_df[[column]].copy()
-    trend_df[column] = trend_df[column] /  products_df.Active
+    trend_df[column] = trend_df[column] / products_df.Active
 
     # Resetting index
     trend_df = trend_df.reset_index(0)
@@ -233,30 +226,48 @@ def get_trend(reviews_df, column, reviewers_df, products_df, category='trend', f
     trend_df.columns = ['month', 'year', column]
 
     # Truncate
-    trend_df = trend_df[trend_df.year >= from_year].set_index(['year', 'month']).rename(columns = {column: category})
+    trend_df = trend_df[trend_df.year >= from_year].set_index(
+        ['year', 'month']).rename(columns={column: category})
     return trend_df
 
+
 def get_products_stat(reviews_df, meta_df):
+    '''
+    Compute the products' statistics given reviews and meta DataFrame
+    '''
     products_count = meta_df.groupby([meta_df.datetime.dt.year,
-                            meta_df.datetime.dt.month])[['asin']].nunique()
-    products_count = products_count.rename(columns= {'asin' : 'New'})
+                                      meta_df.datetime.dt.month])[['asin']].nunique()
+    products_count = products_count.rename(columns={'asin': 'New'})
     products_count['Total'] = products_count.New.cumsum()
     products_count = add_active(products_count, reviews_df, 'asin')
     return products_count
 
-def get_reviewers_stat(reviews_df):
-    reviewers_count = reviews_df[['reviewerID','datetime']]
-    reviewers_count = reviewers_count.sort_values('datetime')
-    reviewers_count = reviewers_count.groupby('reviewerID').first().reset_index()
-    reviewers_count = reviewers_count.groupby([reviewers_count.datetime.dt.year,
-                           reviewers_count.datetime.dt.month]).count()[['reviewerID']]
 
-    reviewers_count = reviewers_count.rename(columns = {'reviewerID': 'New'})
+def get_reviewers_stat(reviews_df):
+    '''
+    Compute the reviewers' statistics given reviews DataFrame
+    '''
+    reviewers_count = reviews_df[['reviewerID', 'datetime']]
+    reviewers_count = reviewers_count.sort_values('datetime')
+    # Get first reviews of all reviewers
+    reviewers_count = reviewers_count.groupby(
+        'reviewerID').first().reset_index()
+    # Group by Year and Month
+    reviewers_count = reviewers_count.groupby([reviewers_count.datetime.dt.year,
+                                               reviewers_count.datetime.dt.month]).count()[['reviewerID']]
+
+    # Compute some more statistics
+    reviewers_count = reviewers_count.rename(columns={'reviewerID': 'New'})
     reviewers_count['Total'] = reviewers_count.New.cumsum()
     reviewers_count = add_active(reviewers_count, reviews_df, 'reviewerID')
     return reviewers_count
 
+
 def get_reviews_stat(reviews_df):
-    reviews_df = reviews_df.groupby([reviews_df.datetime.dt.year,
-                                               reviews_df.datetime.dt.month]).count()
+    '''
+    Compute the reviews' statistics given reviews DataFrame
+    '''
+
+    reviews_df = reviews_df.groupby(
+        [reviews_df.datetime.dt.year, reviews_df.datetime.dt.month]).count()
     return reviews_df
