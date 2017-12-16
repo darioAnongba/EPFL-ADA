@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import gzip
+from helpers import loadCountData, statistics_data, count_review, get_user, get_product
 DATA_DIR = 'data/'
 
 '''
@@ -85,6 +86,9 @@ HEALTHY_FOOD_KEYWORDS = ['organic', 'natural', 'sugar-free', 'healthy', 'vitamin
 HEALTHY_SPORT_CATEGORIES = ['Exercise & Fitness', 'Cycling', 'Sport Watches', 'Team Sports',
                             'Strength Training Equipment', 'Action Sports', 'Cardio Training',
                             'Running']
+REVIEWS_GROWTH = 'reviews_count_df'
+USER_COUNT = 'users_count_df'
+PRODUCT_COUNT = 'products_count_df'
 
 ##### Functions related to the 'healthiness' of items #####
 
@@ -188,6 +192,10 @@ def main():
     sports_cat_count_df = create_categories_count_df(
         sports_reviews_df, sports_meta_df)
     sports_cat_count_df.to_pickle(DATA_DIR + 'sports_cat_count_df')
+
+    loadCountData(REVIEWS_GROWTH, count_review, extra_handling='Reviews')
+    loadCountData(USER_COUNT, statistics_data, get_user, 'Users')
+    loadCountData(PRODUCT_COUNT, statistics_data, get_product, 'Products')
 
 
 if __name__ == "__main__":
