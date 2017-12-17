@@ -1,15 +1,27 @@
-import pandas as pd
-import numpy as np
-import gzip
-from helpers import loadCountData, statistics_data, count_review, get_user, get_product
-DATA_DIR = 'data/'
-
 '''
 This file handles all the data preparation and storage needed for the analysis.
 '''
 
-##### Functions for reading and parsing files #####
+import pandas as pd
+import numpy as np
+import gzip
+from helpers import loadCountData, statistics_data, count_review, get_user, get_product
 
+# CONSTANTS
+METADATA_TO_KEEP = ['asin', 'title', 'categories', 'price']
+REVIEWS_DATA_TO_KEEP = ['reviewerID', 'asin', 'overall', 'datetime']
+HEALTHY_FOOD_KEYWORDS = ['organic', 'natural', 'sugar-free', 'healthy', 'vitamin',
+                         'supplement', 'minerals', 'diet', 'vegan']
+HEALTHY_SPORT_CATEGORIES = ['Exercise & Fitness', 'Cycling', 'Sport Watches', 'Team Sports',
+                            'Strength Training Equipment', 'Action Sports', 'Cardio Training',
+                            'Running']
+REVIEWS_GROWTH = 'reviews_count_df'
+USER_COUNT = 'users_count_df'
+PRODUCT_COUNT = 'products_count_df'
+DATA_DIR = 'data/'
+
+
+##### Functions for reading and parsing files #####
 
 def parse(path):
     '''
@@ -78,20 +90,7 @@ def df_with_datetime(df, col_name='datetime', out_format=None):
     return df
 
 
-# CONSTANTS
-METADATA_TO_KEEP = ['asin', 'title', 'categories', 'price']
-REVIEWS_DATA_TO_KEEP = ['reviewerID', 'asin', 'overall', 'datetime']
-HEALTHY_FOOD_KEYWORDS = ['organic', 'natural', 'sugar-free', 'healthy', 'vitamin',
-                         'supplement', 'minerals', 'diet', 'vegan']
-HEALTHY_SPORT_CATEGORIES = ['Exercise & Fitness', 'Cycling', 'Sport Watches', 'Team Sports',
-                            'Strength Training Equipment', 'Action Sports', 'Cardio Training',
-                            'Running']
-REVIEWS_GROWTH = 'reviews_count_df'
-USER_COUNT = 'users_count_df'
-PRODUCT_COUNT = 'products_count_df'
-
 ##### Functions related to the 'healthiness' of items #####
-
 
 def is_food_healthy(item):
     '''

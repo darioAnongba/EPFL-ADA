@@ -1,3 +1,8 @@
+'''
+This file contains a bunch of helpers methods for computing statistics and
+different DFs on our data.
+'''
+
 import os
 import gzip
 import datetime
@@ -6,10 +11,17 @@ from sklearn import linear_model
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 from tqdm import tqdm_notebook as tqdm
+
+# Constants
+REVIEWS_DATE_FORMAT = "%m %d, %Y"
+MONT_DATE_FORMAT = '%Y-%m'
+REVIEWS_GROWTH = 'reviews_count_df'
+USER_COUNT = 'users_count_df'
+PRODUCTS_COUNT = 'products_count_df'
 DATA_DIR = 'data/'
 
-##### Functions related to the DataFrames directly #####
 
+##### Functions related to the DataFrames directly #####
 
 def truncate_date_df(df, col_name='datetime', from_date='2003-01-01', to_date='2014-07-01'):
     '''
@@ -17,15 +29,8 @@ def truncate_date_df(df, col_name='datetime', from_date='2003-01-01', to_date='2
     '''
     return df[(df[col_name] >= from_date) & (df[col_name] < to_date)]
 
-# Functions related to compute some statistics
 
-
-REVIEWS_DATE_FORMAT = "%m %d, %Y"
-MONT_DATE_FORMAT = '%Y-%m'
-REVIEWS_GROWTH = 'reviews_count_df'
-USER_COUNT = 'users_count_df'
-PRODUCTS_COUNT = 'products_count_df'
-
+##### Functions to compute some statistics
 
 def get_date(item):
     '''
@@ -147,7 +152,7 @@ def statistics_data(file_path, acc_new, acc_active, get_data):
     Find the statistics about new/active user (or product) in a given file
     and update the values in an accumulator
     '''
-    skiped = 0
+    skipoed = 0
     g = gzip.open(file_path, 'rb')
     for l in g:
         row = eval(l)
@@ -173,11 +178,10 @@ def statistics_data(file_path, acc_new, acc_active, get_data):
                     acc_active[date_key].add(item)
 
         except (KeyError, ValueError) as e:
-            #print('row is : {}'.format(row))
-            skiped += 1
+            skipped += 1
             continue
-    if skiped:
-        print('skipped {} rows because of KeyError (not present) or ValueError (not parsable)'.format(skiped))
+    if skipped:
+        print('skipped {} rows because of KeyError (not present) or ValueError (not parsable)'.format(skipped))
 
 
 def get_product(product):
@@ -196,8 +200,7 @@ def add_active(stat_df, item_df, column_name):
     add the active count of item to the statistic DataFrame
     '''
     # Count the number of different item for a given Year and month
-    item_df = item_df.groupby([item_df.datetime.dt.year, item_df.datetime.dt.month])[
-        column_name].nunique()
+    item_df = item_df.groupby([item_df.datetime.dt.year, item_df.datetime.dt.month])[column_name].nunique()
     # Store values
     stat_df['Active'] = item_df
     return stat_df.dropna()
@@ -205,7 +208,7 @@ def add_active(stat_df, item_df, column_name):
 
 def add_launch(item_df, reviews_df):
     '''
-    add the launch date to an item Dataframe given its reviews DataFrame
+    Add the launch date to an item Dataframe given its reviews DataFrame
     '''
     temp_df = reviews_df.copy().sort_values('datetime')
     temp_df = temp_df.groupby('asin').first()
@@ -214,7 +217,7 @@ def add_launch(item_df, reviews_df):
     return item_df.reset_index()
 
 
-def get_trend(reviews_df, column, reviewers_df, products_df, category='trend', from_year=2003):
+def get_trend(reviews_df, column, products_df, category='trend', from_year=2003):
     '''
     Compute the trend given statistics of reviews, reviewers and products
     '''
@@ -271,29 +274,40 @@ def get_reviews_stat(reviews_df):
     Compute the reviews' statistics given reviews DataFrame
     '''
 
-    reviews_df = reviews_df.groupby(
-        [reviews_df.datetime.dt.year, reviews_df.datetime.dt.month]).count()
+    reviews_df = reviews_df.groupby([reviews_df.datetime.dt.year, reviews_df.datetime.dt.month]).count()
     return reviews_df
 
-def get_normalized_date(df):
-    return df['year'] + (df['month'] - df['month'].min()) * (1/12) - df['year'].min()
 
-def get_diff_trend_and_estimation(healthy_trend, overall_trend, healthy_col_name="Healthy", overall_col_name="Overall"):
+def get_normalized_date(df):
+    '''
+    Transform a all Dates (Month and Year) from a DF to the number of years (in decimal) from
+    the earliest Date present in the DF
+    '''
+    return df['year'] + (df['month'] - df['month'].min()) / 12 - df['year'].min()
+
+
+def get_ratio_trend_and_estimation(healthy_trend, food_and_sport_trend, healthy_col_name="Healthy", food_and_sport_col_name="Food and Sport"):
+    '''
+    Get a DF containing the ratio between values in a certain column from 2 similar DFs,
+    compute a regression (using Ridge regression with PolynomialFeature of degree 4) on
+    the ratio using the normalized date as feature and add it to the returned DF
+    '''
+
     # Rename columns to the same name in both DFs
     healthy_df = healthy_trend.copy()
     healthy_df = healthy_df.rename(columns={healthy_col_name: "Total"})
-    overall_df = overall_trend.copy()
-    overall_df = overall_df.rename(columns={overall_col_name: "Total"})
+    food_and_sport_df = food_and_sport_trend.copy()
+    food_and_sport_df = food_and_sport_df.rename(columns={food_and_sport_col_name: "Total"})
 
     # Compute the diff
-    diff_df = healthy_df.subtract(overall_df)
-    diff_df = diff_df.rename(columns={"Total": "Diff"})
-    diff_df = diff_df.reset_index().dropna()
-    diff_df['NormalizedDate'] = get_normalized_date(diff_df)
+    ratio_df = healthy_df / food_and_sport_df
+    ratio_df = ratio_df.rename(columns={"Total": "Diff"})
+    ratio_df = ratio_df.reset_index().dropna()
+    ratio_df['NormalizedDate'] = get_normalized_date(ratio_df)
 
     # Create model with Ridge regression
     model = make_pipeline(PolynomialFeatures(4), linear_model.Ridge())
-    model.fit(diff_df[['NormalizedDate']].values, diff_df[['Diff']].values.flatten())
-    diff_df['Estimation'] = model.predict(diff_df['NormalizedDate'].values.reshape(-1, 1))
+    model.fit(ratio_df[['NormalizedDate']].values, ratio_df[['Diff']].values.flatten())
+    ratio_df['Regression'] = model.predict(ratio_df['NormalizedDate'].values.reshape(-1, 1))
 
-    return diff_df.set_index(['year', 'month'])[['Estimation', 'Diff']]
+    return ratio_df.set_index(['year', 'month'])[['Regression', 'Diff']]
