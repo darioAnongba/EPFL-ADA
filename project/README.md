@@ -44,13 +44,4 @@ Finally, in order to determine if a product or a category of products is becomin
 |Week 3| Writing the report while analyzing the results and trying to come up with responses to the initial research questions.
 
 ## Workload 
-|Group member|Tasks|
-|---|---|
-|Dario Anongba Varela| * s
-* s
-* s
-
-
-|Valentin Moullet| 
-|Alain Birchmeier|
-
+The workload was equally distributed among group members. We met twice every week to distribute the work and all members participated in all aspects of the project, from data preprocessing, to the report.
