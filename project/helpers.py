@@ -301,13 +301,13 @@ def get_ratio_trend_and_estimation(healthy_trend, food_and_sport_trend, healthy_
 
     # Compute the diff
     ratio_df = healthy_df / food_and_sport_df
-    ratio_df = ratio_df.rename(columns={"Total": "Diff"})
+    ratio_df = ratio_df.rename(columns={"Total": "Ratio"})
     ratio_df = ratio_df.reset_index().dropna()
     ratio_df['NormalizedDate'] = get_normalized_date(ratio_df)
 
     # Create model with Ridge regression
     model = make_pipeline(PolynomialFeatures(4), linear_model.Ridge())
-    model.fit(ratio_df[['NormalizedDate']].values, ratio_df[['Diff']].values.flatten())
+    model.fit(ratio_df[['NormalizedDate']].values, ratio_df[['Ratio']].values.flatten())
     ratio_df['Regression'] = model.predict(ratio_df['NormalizedDate'].values.reshape(-1, 1))
 
-    return ratio_df.set_index(['year', 'month'])[['Regression', 'Diff']]
+    return ratio_df.set_index(['year', 'month'])[['Regression', 'Ratio']]
