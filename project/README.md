@@ -10,14 +10,13 @@ In order to achieve that goal, we will use the Amazon reviews dataset. From thos
 With the emergence of new institutions promoting healthy lifes (like vegan shops or fitness centers), finding insights and patterns in people's behavior could be useful to define in which direction this social change is heading.
 
 # Research questions
-* Study the evolution of the enthousiasm for healthy products over time.
-* Study the price evolution of healthy products.
+* Study the evolution of the enthusiasm for healthy products over time.
 * Determine the "hype" factor of healthy product categories.
-* Forecast the "hype" factor over the upcoming years by categories in order to predict new trends or define decaying ones.
-* Correlate the price and the "hype" factor.
+* Study the hype for healthy products in comparison with general products of the same categories
+* Identify the evolution of the hype for healthy product over time. 
 
 # Dataset
-* Amazon reviews (Sports and Outdoors, Health and Personal Care, Grocery and Gourmet Food)
+* Amazon reviews (Sports and Outdoors, Grocery and Gourmet Food)
 
 Here is an example of how the "vegan" keyword is an actual trend and the predictions for that keyword in the future (by Google analytics) from 2012 to 2017:
 
@@ -43,4 +42,15 @@ Finally, in order to determine if a product or a category of products is becomin
 |---|---|
 |Week 1 and 2| Computing and plotting all the metrics defined in the mathematicals details section of our report.
 |Week 3| Writing the report while analyzing the results and trying to come up with responses to the initial research questions.
+
+## Workload 
+|Group member|Tasks|
+|---|---|
+|Dario Anongba Varela| * s
+* s
+* s
+
+
+|Valentin Moullet| 
+|Alain Birchmeier|
 
