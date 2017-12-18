@@ -45,3 +45,5 @@ Finally, in order to determine if a product or a category of products is becomin
 
 ## Workload 
 The workload was equally distributed among group members. We met twice every week to distribute the work and all members participated in all aspects of the project, from data preprocessing, to the report.
+
+We will all work on the final presentation which will be presented by Valentin Moullet.
