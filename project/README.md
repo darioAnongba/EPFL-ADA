@@ -1,4 +1,4 @@
-# Is adopting a healthier lifestyle a long-term social change?
+# Was the healthy lifestyle trend predictable ?
 
 # Abstract
 > *"A healthy lifestyle, excluding any damaging influences, defines the positive and voluntary measures a person can implement to maintain good mental and physical health. This includes healthy habits in terms of diet, treatment of the body, sex, and the environment"*, http://health.ccm.net 
