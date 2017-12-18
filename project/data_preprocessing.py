@@ -5,7 +5,7 @@ This file handles all the data preparation and storage needed for the analysis.
 import pandas as pd
 import numpy as np
 import gzip
-from helpers import loadCountData, statistics_data, count_review, get_user, get_product
+from helpers import load_count_data, statistics_data, count_review, get_user, get_product
 
 # CONSTANTS
 METADATA_TO_KEEP = ['asin', 'title', 'categories', 'price']
@@ -192,9 +192,9 @@ def main():
         sports_reviews_df, sports_meta_df)
     sports_cat_count_df.to_pickle(DATA_DIR + 'sports_cat_count_df')
 
-    loadCountData(REVIEWS_GROWTH, count_review, extra_handling='Reviews')
-    loadCountData(USER_COUNT, statistics_data, get_user, 'Users')
-    loadCountData(PRODUCT_COUNT, statistics_data, get_product, 'Products')
+    load_count_data(REVIEWS_GROWTH, count_review, extra_handling='Reviews')
+    load_count_data(USER_COUNT, statistics_data, get_user, 'Users')
+    load_count_data(PRODUCT_COUNT, statistics_data, get_product, 'Products')
 
 
 if __name__ == "__main__":

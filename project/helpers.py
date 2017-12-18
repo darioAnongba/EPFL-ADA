@@ -79,7 +79,7 @@ def count_review(file_path, acc, *args):
         print('skipped {} rows because of KeyError (not present) or ValueError (not parsable)'.format(skipped))
 
 
-def loadCountData(filename, count_func, get_item=None, extra_handling=None, truncate=True):
+def load_count_data(filename, count_func, get_item=None, extra_handling=None, truncate=True):
     '''
     Load a DataFrame of the count of reviews/users
     '''
